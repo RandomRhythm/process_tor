@@ -37,24 +37,30 @@ with open(strTorPath, "rt", encoding="utf-8") as csvfile: #Open tor listing   #,
       dictDirectory[strTmpIP + "|" + strTmpDirectory] = strTmpRouter #build dict of IP|port pairs for tor directory
 
     #<ip>|<name>|<router-port>|<directory-port>|<flags>|<uptime>|<version>|<contactinfo>
-
-with io.open(strOutPath, "w", encoding=outputEncoding) as f:
-  intRowCount = 0;
-  with open(strinputFile, "rt", encoding="utf-8") as csvfile: #, encoding="utf-16"
-      reader = csv.reader(csvfile, delimiter=',', quotechar='\"')
-      for row in reader:
-        if len(listIpColumns) == len(listPortColumns) and boolDistinctPairs == True:
-          intPairCount = 0
-          for ipaddrloc in listIpColumns:
-           if row[ipaddrloc] + "|" +  row[listPortColumns[intPairCount]] in dictRouter: #check if IP|port pair in tor router dict
-             writeCSV(f, row[ipaddrloc] + "|" + row[listPortColumns[intPairCount]] + "|Router port match")
-           if row[ipaddrloc] + "|" +  row[listPortColumns[intPairCount]] in dictDirectory: #check if IP|port pair in tor directory dict
-             writeCSV(f, row[ipaddrloc] + "|" + row[listPortColumns[intPairCount]] + "|Directory port match")
-           intPairCount +=1
-        else:
-          for ipaddrloc in listIpColumns:
-            for portloc in listPortColumns:
-             if row[ipaddrloc] + "|" + row[portloc] in dictRouter:
-               writeCSV(f, row[ipaddrloc] + "|" + row[portloc] + "|Router port match")
-             if row[ipaddrloc] + "|" + row[portloc] in dictDirectory:
-               writeCSV(f, row[ipaddrloc] + "|" + row[portloc] + "|Directory port match")
+with open(strOutPath + "_.csv", 'w', encoding=outputEncoding) as csvoutput:
+  writer = csv.writer(csvoutput, lineterminator='\n')
+  with io.open(strOutPath, "w", encoding=outputEncoding) as f:
+    intRowCount = 0;
+    with open(strinputFile, "rt", encoding="utf-8") as csvfile: #, encoding="utf-16"
+        reader = csv.reader(csvfile, delimiter=',', quotechar='\"')
+        for row in reader:
+          #print(row[listIpColumns[0]] + "|" + row[listPortColumns[0]])
+          if len(listIpColumns) == len(listPortColumns) and boolDistinctPairs == True:
+            intPairCount = 0
+            for ipaddrloc in listIpColumns:
+             if row[ipaddrloc] + "|" +  row[listPortColumns[intPairCount]] in dictRouter: #check if IP|port pair in tor router dict
+               writeCSV(f, row[ipaddrloc] + "|" + row[listPortColumns[intPairCount]] + "|Router port match")
+               writer.writerow(row)
+             if row[ipaddrloc] + "|" +  row[listPortColumns[intPairCount]] in dictDirectory: #check if IP|port pair in tor directory dict
+               writeCSV(f, row[ipaddrloc] + "|" + row[listPortColumns[intPairCount]] + "|Directory port match")
+               writer.writerow(row)
+             intPairCount +=1
+          else:
+            for ipaddrloc in listIpColumns:
+              for portloc in listPortColumns:
+               if row[ipaddrloc] + "|" + row[portloc] in dictRouter:
+                 writeCSV(f, row[ipaddrloc] + "|" + row[portloc] + "|Router port match")
+                 writer.writerow(row)
+               if row[ipaddrloc] + "|" + row[portloc] in dictDirectory:
+                 writeCSV(f, row[ipaddrloc] + "|" + row[portloc] + "|Directory port match")
+                 writer.writerow(row)
